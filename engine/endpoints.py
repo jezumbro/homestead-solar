@@ -1,4 +1,4 @@
-from client.enphase_client import EnPhaseClient, get_en_phase_client
+from client.enphase_client import AuthClient, get_auth_client
 from fastapi import APIRouter, Depends
 
 from engine.dependencies import get_engine_repo
@@ -14,7 +14,7 @@ router = APIRouter()
 def create_engine(
     req: CreateEngineRequest,
     repo: EngineRepo = Depends(get_engine_repo),
-    client: EnPhaseClient = Depends(get_en_phase_client),
+    client: AuthClient = Depends(get_auth_client),
 ):
     resp = client.get_token(req.code, req.redirect_uri)
     existing_engine = repo.find_one_by({"user_id": resp.enl_uid})

@@ -1,13 +1,11 @@
 import pytest
 
-from client.enphase_client import EnPhaseClient
+from client.enphase_client import AuthClient
 
 
 @pytest.fixture
 def en_phase_client():
-    return EnPhaseClient(
-        client_id="abcd", client_secret="uvwxyz", base_url="http://test"
-    )
+    return AuthClient(client_id="abcd", client_secret="uvwxyz", base_url="http://test")
 
 
 def test_invalid_endpoint_raises(en_phase_client):
