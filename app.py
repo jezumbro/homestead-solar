@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
-from engine.endpoints import router as engine_router
 from settings import settings
 
 app = FastAPI(title="Homestead Solar", root_path=settings.root_path)
@@ -38,4 +37,3 @@ def get_settings():
 app.add_event_handler("startup", startup_event)
 app.add_event_handler("shutdown", shutdown_event)
 
-app.include_router(engine_router, prefix="/engine")

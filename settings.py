@@ -25,8 +25,6 @@ class Settings(BaseSettings):
     db_port: int = 27017
     db_name: str = "solar"
 
-    rsa_file: Optional[FilePath] = None
-
     @property
     def origins(self):
         return parse_csv(self.origin_str)
