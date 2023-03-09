@@ -10,11 +10,11 @@ from pymongo.results import BulkWriteResult
 
 from settings import settings
 
-client = MongoClient(host=settings.db_host, port=settings.db_port)
+client = MongoClient(host=settings.mongo_dsn.host, port=int(settings.mongo_dsn.port))
 
 
 def get_database() -> Database:
-    return client[settings.db_name]
+    return client.get_database(settings.db_name)
 
 
 class OID(str):

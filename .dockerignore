@@ -1,0 +1,10 @@
+/static
+/results
+/data
+.env
+deploy.py
+.python-version
+.gitlab-ci.yml
+.gitignore
+.pytest_cache
+__pycache__

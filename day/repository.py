@@ -4,5 +4,6 @@ from pydantic_mongo import AbstractRepository
 from day.model import SolarDay
 
 
-class DayRepository(AbstractRepository[SolarDay], BulkRepository):
-    collection = "day"
+class SolarDayRepository(AbstractRepository[SolarDay], BulkRepository):
+    class Meta:
+        collection_name = "solar_day"
