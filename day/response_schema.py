@@ -1,11 +1,18 @@
-from datetime import date
+from datetime import date, datetime
 
 from database import MongoModel
-from pydantic import Field
+from pydantic import BaseModel, Field, validator
+from util import add_utc
 
-from day.model import TimeValues
+
+class TimeValueResponse(BaseModel):
+    end_date: datetime
+    start_date: datetime
+    value: float
+
+    _utc_convert = validator("start_date", "end_date", allow_reuse=True)(add_utc)
 
 
 class SolarDayResponse(MongoModel):
     date: date
-    values: list[TimeValues] = Field(default_factory=list)
+    values: list[TimeValueResponse] = Field(default_factory=list)
