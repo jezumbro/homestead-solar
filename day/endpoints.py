@@ -23,14 +23,14 @@ def insert_solar_days(
     return {"inserted": result.inserted_count, "updated": result.upserted_count}
 
 
-@router.get("/dates")
+@router.get("/dates", response_model=list[date])
 def get_unique_days(repo: SolarDayRepository = Depends(get_solar_day_repository)):
-    return repo.find_by({}, projection={"date": 1})
+    return sorted(x.date for x in repo.find_by({}, projection={"date": 1}))
 
 
-@router.get("/dates/{date}", response_model=SolarDayResponse)
-def get_data(date: date, repo: SolarDayRepository = Depends(get_solar_day_repository)):
-    dt = datetime.combine(date, datetime.min.time())
+@router.get("/dates/{_date}", response_model=SolarDayResponse)
+def get_data(_date: date, repo: SolarDayRepository = Depends(get_solar_day_repository)):
+    dt = datetime.combine(_date, datetime.min.time())
     if sd := repo.find_one_by({"date": dt}):
         return sd
     return SolarDayResponse(date=dt)
