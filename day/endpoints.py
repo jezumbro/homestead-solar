@@ -20,7 +20,7 @@ def insert_solar_days(
     existing_lookup = {x.date: x for x in repo.find_by_dates(grouping.keys())}
     docs = update_or_insert_requests(grouping, existing_lookup)
     result = repo.bulk_upsert(docs)
-    return {"inserted": result.inserted_count, "updated": result.upserted_count}
+    return result.bulk_api_result
 
 
 @router.get("/dates", response_model=list[date])
@@ -42,3 +42,14 @@ def get_data(repo: SolarDayRepository = Depends(get_solar_day_repository)):
     if sd := repo.find_one_by({"date": today}):
         return sd
     return SolarDayResponse(date=today)
+
+
+@router.get("/fix")
+def fix_days(repo: SolarDayRepository = Depends(get_solar_day_repository)):
+    docs = []
+    for day in repo.find_by({}):
+        day.values = [v for v in day.values if v.value != 0]
+        day.sort_values()
+        docs.append(day)
+    result = repo.bulk_upsert(docs)
+    return result.bulk_api_result

@@ -1,24 +1,30 @@
 from datetime import date, datetime
 from typing import Iterable
 
-from dateutil import tz
 from more_itertools import map_reduce
+from util import to_localized_date
 
 from day.model import SolarDay, TimeValue
 from day.request_schema import SolarDayRequest
 
 
 def by_localized_date(req: SolarDayRequest) -> date:
-    return req.start_date.astimezone(tz.gettz("America/Chicago")).date()
+    return to_localized_date(req.start_date)
+
+
+def filter_nones(reqs: list[SolarDayRequest]):
+    return (x for x in reqs if x.value is not None)
 
 
 def group_by_localized_date(
     reqs: list[SolarDayRequest],
-) -> dict[date, list[SolarDayRequest]]:
-    return map_reduce(reqs, keyfunc=by_localized_date)
+) -> dict[date, Iterable[SolarDayRequest]]:
+    return map_reduce(reqs, keyfunc=by_localized_date, reducefunc=filter_nones)
 
 
-def convert_requests_to_time_values(reqs: list[SolarDayRequest]) -> Iterable[TimeValue]:
+def convert_requests_to_time_values(
+    reqs: Iterable[SolarDayRequest],
+) -> Iterable[TimeValue]:
     for req in reqs:
         yield TimeValue(
             start_date=req.start_date.replace(tzinfo=None),
@@ -28,7 +34,8 @@ def convert_requests_to_time_values(reqs: list[SolarDayRequest]) -> Iterable[Tim
 
 
 def update_or_insert_requests(
-    group: dict[date, list[SolarDayRequest]], existing_lookup: dict[datetime, SolarDay]
+    group: dict[date, Iterable[SolarDayRequest]],
+    existing_lookup: dict[datetime, SolarDay],
 ):
     min_time = datetime.min.time()
     for d, reqs in group.items():

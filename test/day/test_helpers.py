@@ -22,5 +22,5 @@ def test_upsert_request(single_day_group):
     days = list(update_or_insert_requests(single_day_group, {}))
     assert len(days) == 1
     day = first(days)
-    assert len(day.values) == 2
     assert day.id is None
+    assert len(day.values) == 4

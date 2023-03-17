@@ -4,7 +4,7 @@ from typing import Iterable
 from database import MongoModel
 from loguru import logger
 from pydantic import BaseModel, Field, validator
-from util import no_tz_info
+from util import no_timezone_information
 
 
 class TimeValue(BaseModel):
@@ -12,7 +12,9 @@ class TimeValue(BaseModel):
     start_date: datetime
     value: float
 
-    _no_tz_info = validator("start_date", "end_date", allow_reuse=True)(no_tz_info)
+    _no_tz_info = validator("start_date", "end_date", allow_reuse=True)(
+        no_timezone_information
+    )
 
 
 class SolarDay(MongoModel):
@@ -25,6 +27,9 @@ class SolarDay(MongoModel):
     @staticmethod
     def by_start_date(value: TimeValue):
         return value.start_date
+
+    def sort_values(self):
+        self.values.sort(key=self.by_start_date)
 
     def upsert_values(self, values: Iterable[TimeValue]):
         lookup = self.existing_lookup()
@@ -41,4 +46,4 @@ class SolarDay(MongoModel):
                 existing.value = value.value
                 continue
             self.values.append(value)
-        self.values = sorted(self.values, key=self.by_start_date)
+        self.sort_values()
