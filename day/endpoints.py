@@ -21,7 +21,9 @@ def post_solar_day(
     req: CreateSolarDayRequest,
     repo: SolarDayRepository = Depends(get_solar_day_repository),
 ):
-    sd = repo.find_one_by_date(req.date) or SolarDay(date=req.date)
+    sd = repo.find_one_by_date(req.date) or SolarDay(
+        date=datetime.combine(req.date, datetime.min.time())
+    )
     sd.upsert_weather(req.weather)
     sd.weather = sd.weather or req.weather
     sd.upsert_values(convert_requests_to_time_values(req.values))
