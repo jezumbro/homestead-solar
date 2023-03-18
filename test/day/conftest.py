@@ -27,7 +27,7 @@ def solar_day_3_10(solar_repo):
         ],
     )
     solar_repo.save(sd)
-    return
+    return sd
 
 
 @pytest.fixture

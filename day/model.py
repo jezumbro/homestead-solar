@@ -31,10 +31,15 @@ class Weather(BaseModel):
 class SolarDay(MongoModel):
     date: datetime
     values: list[TimeValue] = Field(default_factory=list)
-    weather: Optional[Weather] = None
+    weather: Optional[Weather] = Field(None)
 
     def existing_lookup(self) -> dict[datetime, TimeValue]:
         return {x.start_date: x for x in self.values}
+
+    def upsert_weather(self, weather: Optional[Weather]):
+        if not weather:
+            return
+        self.weather = weather
 
     @staticmethod
     def by_start_date(value: TimeValue):
