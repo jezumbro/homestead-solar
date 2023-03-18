@@ -2,7 +2,7 @@ from pprint import pprint
 
 
 def test_insert_zero_records(client):
-    resp = client.post("/", json=[])
+    resp = client.post("/day/values", json=[])
     pprint(resp.json())
     assert resp.status_code == 200
     assert resp.json() == {}
@@ -10,7 +10,7 @@ def test_insert_zero_records(client):
 
 def test_insert_single_record_new_day(client, solar_repo):
     resp = client.post(
-        "/",
+        "/day/values",
         json=[
             {
                 "start_date": "2023-03-01T06:00+00:00",
@@ -34,7 +34,7 @@ def test_insert_single_record_new_day(client, solar_repo):
 
 
 def test_respond_with_date(client, solar_day_3_10):
-    resp = client.get("/dates/2023-03-10")
+    resp = client.get("/day/2023-03-10")
     json = resp.json()
     pprint(json)
     assert resp.status_code == 200

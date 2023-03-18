@@ -26,6 +26,8 @@ def convert_requests_to_time_values(
     reqs: Iterable[SolarDayRequest],
 ) -> Iterable[TimeValue]:
     for req in reqs:
+        if req.value is None:
+            continue
         yield TimeValue(
             start_date=req.start_date.replace(tzinfo=None),
             end_date=req.end_date.replace(tzinfo=None),

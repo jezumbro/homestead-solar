@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable
+from typing import Iterable, Optional
 
 from database import MongoModel
 from loguru import logger
@@ -17,9 +17,21 @@ class TimeValue(BaseModel):
     )
 
 
+class Temperature(BaseModel):
+    min: int
+    max: int
+
+
+class Weather(BaseModel):
+    code: str
+    display: str
+    temperature: Temperature
+
+
 class SolarDay(MongoModel):
     date: datetime
     values: list[TimeValue] = Field(default_factory=list)
+    weather: Optional[Weather] = None
 
     def existing_lookup(self) -> dict[datetime, TimeValue]:
         return {x.start_date: x for x in self.values}

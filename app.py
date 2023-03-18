@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from day.endpoints import router as day_router
+from router import routers
 from settings import settings
 
 if dsn := settings.sentry_dsn:
@@ -37,17 +38,8 @@ app.add_middleware(
 )
 
 
-@app.get("/hello")
-def hello_endpoint():
-    return "hello"
-
-
-@app.get("/settings")
-def get_settings():
-    return settings
-
-
 app.add_event_handler("startup", startup_event)
 app.add_event_handler("shutdown", shutdown_event)
 
-app.include_router(day_router)
+for router in routers:
+    app.include_router(router.router, prefix=router.prefix)

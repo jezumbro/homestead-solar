@@ -2,16 +2,33 @@ from datetime import date, datetime
 
 from fastapi import APIRouter, Depends
 
-from day.dependencies import get_solar_day_repository
-from day.helpers import group_by_localized_date, update_or_insert_requests
+from day.dependencies import get_by_date, get_solar_day_repository
+from day.helpers import (
+    convert_requests_to_time_values,
+    group_by_localized_date,
+    update_or_insert_requests,
+)
+from day.model import SolarDay
 from day.repository import SolarDayRepository
-from day.request_schema import SolarDayRequest
+from day.request_schema import CreateSolarDayRequest, SolarDayRequest
 from day.response_schema import SolarDayResponse
 
 router = APIRouter()
 
 
-@router.post("/")
+@router.post("/", response_model=SolarDayResponse)
+def post_solar_day(
+    req: CreateSolarDayRequest,
+    repo: SolarDayRepository = Depends(get_solar_day_repository),
+):
+    sd = repo.find_one_by_date(req.date) or SolarDay(date=req.date)
+    sd.weather = sd.weather or req.weather
+    sd.upsert_values(convert_requests_to_time_values(req.values))
+    repo.save(sd)
+    return sd
+
+
+@router.post("/values")
 def insert_solar_days(
     reqs: list[SolarDayRequest],
     repo: SolarDayRepository = Depends(get_solar_day_repository),
@@ -28,14 +45,6 @@ def get_unique_days(repo: SolarDayRepository = Depends(get_solar_day_repository)
     return sorted(x.date for x in repo.find_by({}, projection={"date": 1}))
 
 
-@router.get("/dates/{_date}", response_model=SolarDayResponse)
-def get_data(_date: date, repo: SolarDayRepository = Depends(get_solar_day_repository)):
-    dt = datetime.combine(_date, datetime.min.time())
-    if sd := repo.find_one_by({"date": dt}):
-        return sd
-    return SolarDayResponse(date=dt)
-
-
 @router.get("/today", response_model=SolarDayResponse)
 def get_data(repo: SolarDayRepository = Depends(get_solar_day_repository)):
     today = datetime.combine(datetime.today(), datetime.min.time())
@@ -44,12 +53,6 @@ def get_data(repo: SolarDayRepository = Depends(get_solar_day_repository)):
     return SolarDayResponse(date=today)
 
 
-@router.get("/fix")
-def fix_days(repo: SolarDayRepository = Depends(get_solar_day_repository)):
-    docs = []
-    for day in repo.find_by({}):
-        day.values = [v for v in day.values if v.value != 0]
-        day.sort_values()
-        docs.append(day)
-    result = repo.bulk_upsert(docs)
-    return result.bulk_api_result
+@router.get("/{_date}", response_model=SolarDayResponse)
+def get_data(sd: SolarDay = Depends(get_by_date)):
+    return sd

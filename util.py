@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Union
 
-from dateutil import tz
 from dateutil.tz import tz
 
 
