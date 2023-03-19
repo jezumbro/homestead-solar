@@ -9,6 +9,7 @@ from day.helpers import (
     create_solar_day,
     group_by_localized_date,
     update_or_insert_requests,
+    update_solar_times,
 )
 from day.model import SolarDay
 from day.repository import SolarDayRepository
@@ -59,4 +60,16 @@ def get_data(repo: SolarDayRepository = Depends(get_solar_day_repository)):
 
 @router.get("/{_date}", response_model=SolarDayResponse)
 def get_data(sd: SolarDay = Depends(get_by_date)):
+    return sd
+
+
+@router.post("/{_date}", response_model=SolarDayResponse)
+def update_date_information(
+    _date: date,
+    sd: SolarDay = Depends(get_by_date),
+    repo: SolarDayRepository = Depends(get_solar_day_repository),
+    client: SolarClient = Depends(get_solar_client),
+):
+    update_solar_times(sd, client)
+    repo.save(sd)
     return sd
