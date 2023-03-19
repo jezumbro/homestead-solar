@@ -26,5 +26,9 @@ def no_timezone_information(dt):
     return dt
 
 
+def remove_timezone(dt: datetime):
+    return dt.replace(tzinfo=None)
+
+
 def to_localized_date(dt):
     return dt.astimezone(tz.gettz("America/Chicago")).date()

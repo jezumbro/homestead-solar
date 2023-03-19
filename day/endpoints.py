@@ -1,10 +1,12 @@
 from datetime import date, datetime
 
+from client.sunrise_sunset import SolarClient, get_solar_client
 from fastapi import APIRouter, Depends
 
 from day.dependencies import get_by_date, get_solar_day_repository
 from day.helpers import (
     convert_requests_to_time_values,
+    create_solar_day,
     group_by_localized_date,
     update_or_insert_requests,
 )
@@ -20,10 +22,9 @@ router = APIRouter()
 def post_solar_day(
     req: CreateSolarDayRequest,
     repo: SolarDayRepository = Depends(get_solar_day_repository),
+    client: SolarClient = Depends(get_solar_client),
 ):
-    sd = repo.find_one_by_date(req.date) or SolarDay(
-        date=datetime.combine(req.date, datetime.min.time())
-    )
+    sd = repo.find_one_by_date(req.date) or create_solar_day(req.date, client)
     sd.upsert_weather(req.weather)
     sd.weather = sd.weather or req.weather
     sd.upsert_values(convert_requests_to_time_values(req.values))

@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     db_name: str = "solar"
 
     sentry_dsn: Optional[HttpUrl] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     @property
     def origins(self):

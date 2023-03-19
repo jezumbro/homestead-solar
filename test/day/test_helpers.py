@@ -1,7 +1,13 @@
+from datetime import datetime
+
 import pytest
 from more_itertools import first
 
-from day.helpers import group_by_localized_date, update_or_insert_requests
+from day.helpers import (
+    create_solar_day,
+    group_by_localized_date,
+    update_or_insert_requests,
+)
 
 
 @pytest.fixture
@@ -24,3 +30,9 @@ def test_upsert_request(single_day_group):
     day = first(days)
     assert day.id is None
     assert len(day.values) == 4
+
+
+def test_create_solar_day(solar_client):
+    sd = create_solar_day(datetime(2023, 3, 18), solar_client)
+    assert sd.date.date().isoformat() == "2023-03-18"
+    assert sd.times

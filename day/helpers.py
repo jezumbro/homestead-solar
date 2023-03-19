@@ -1,11 +1,39 @@
 from datetime import date, datetime
 from typing import Iterable
 
+from client.sunrise_sunset import SolarClient
 from more_itertools import map_reduce
+from settings import settings
 from util import to_localized_date
 
-from day.model import SolarDay, TimeValue
+from day.model import SolarDay, SolarTimes, SunriseSunset, TimeValue
 from day.request_schema import SolarDayRequest
+
+
+def create_solar_day(d: date, client: SolarClient) -> SolarDay:
+    resp = client.get_times(d, settings.latitude, settings.longitude)
+    return SolarDay(
+        date=datetime.combine(d, datetime.min.time()),
+        times=SolarTimes(
+            solar_noon=resp.solar_noon,
+            local=SunriseSunset(
+                sunrise=resp.sunrise,
+                sunset=resp.sunset,
+            ),
+            civil=SunriseSunset(
+                sunrise=resp.civil_twilight_begin,
+                sunset=resp.civil_twilight_end,
+            ),
+            nautical=SunriseSunset(
+                sunrise=resp.nautical_twilight_begin,
+                sunset=resp.nautical_twilight_end,
+            ),
+            astronomical=SunriseSunset(
+                sunrise=resp.astronomical_twilight_begin,
+                sunset=resp.astronomical_twilight_end,
+            ),
+        ),
+    )
 
 
 def by_localized_date(req: SolarDayRequest) -> date:

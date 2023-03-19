@@ -4,7 +4,7 @@ from typing import Iterable, Optional
 from database import MongoModel
 from loguru import logger
 from pydantic import BaseModel, Field, validator
-from util import no_timezone_information
+from util import no_timezone_information, remove_timezone
 
 
 class TimeValue(BaseModel):
@@ -28,10 +28,27 @@ class Weather(BaseModel):
     temperature: Temperature
 
 
+class SunriseSunset(BaseModel):
+    sunrise: datetime
+    sunset: datetime
+
+    _dt_validator = validator("sunrise", "sunset", allow_reuse=True)(remove_timezone)
+
+
+class SolarTimes(BaseModel):
+    solar_noon: datetime
+
+    local: SunriseSunset
+    civil: SunriseSunset
+    nautical: SunriseSunset
+    astronomical: SunriseSunset
+
+
 class SolarDay(MongoModel):
     date: datetime
     values: list[TimeValue] = Field(default_factory=list)
     weather: Optional[Weather] = Field(None)
+    times: Optional[SolarTimes] = Field(None)
 
     def existing_lookup(self) -> dict[datetime, TimeValue]:
         return {x.start_date: x for x in self.values}
