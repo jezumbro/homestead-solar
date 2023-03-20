@@ -3,8 +3,6 @@ from typing import Optional
 from dotenv import load_dotenv
 from pydantic import BaseSettings, HttpUrl, MongoDsn, NoneStr
 
-from util import parse_csv
-
 load_dotenv()
 
 
@@ -27,7 +25,7 @@ class Settings(BaseSettings):
 
     @property
     def origins(self):
-        return parse_csv(self.origin_str)
+        return self.origin_str.split(",")
 
 
 settings = Settings()

@@ -1,7 +1,17 @@
 from datetime import datetime
 
 import pytest
-from util import has_timezone_information, to_localized_date
+from util import (
+    has_timezone_information,
+    no_timezone_information,
+    remove_timezone,
+    to_localized_date,
+)
+
+
+def test_validate_has_timezone_raises():
+    with pytest.raises(ValueError):
+        _ = has_timezone_information(datetime.fromisoformat("2023-03-20T00:00"))
 
 
 @pytest.mark.parametrize(
@@ -29,3 +39,21 @@ def test_validate_has_timezone(dt, expected):
 )
 def test_by_localized_date(dt, expected):
     assert to_localized_date(datetime.fromisoformat(dt)).isoformat() == expected
+
+
+def test_no_timezone_raises():
+    with pytest.raises(ValueError):
+        _ = no_timezone_information(datetime.fromisoformat("2023-03-14T00:00:00+00:00"))
+
+
+@pytest.mark.parametrize(
+    "dt",
+    [
+        "2023-03-14T00:00:00+00:00",
+        "2023-03-15T04:45:00+00:00",
+        "2023-03-15T05:00:00+00:00",
+    ],
+)
+def test_remove_timezone(dt):
+    expected = datetime.fromisoformat(dt).replace(tzinfo=None)
+    assert remove_timezone(datetime.fromisoformat(dt)) == expected

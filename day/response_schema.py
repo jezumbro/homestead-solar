@@ -34,7 +34,25 @@ class WeatherResponse(BaseModel):
     temperature: TemperatureResponse
 
 
+class SunriseSunsetResponse(BaseModel):
+    sunrise: datetime
+    sunset: datetime
+
+    _utc_convert = validator("sunrise", "sunset", allow_reuse=True)(add_utc)
+
+
+class TimesResponse(BaseModel):
+    solar_noon: datetime
+    local: SunriseSunsetResponse
+    civil: SunriseSunsetResponse
+    nautical: SunriseSunsetResponse
+    astronomical: SunriseSunsetResponse
+
+    _utc_convert = validator("solar_noon", allow_reuse=True)(add_utc)
+
+
 class SolarDayResponse(MongoModel):
     date: date
     values: list[TimeValueResponse] = Field(default_factory=list)
     weather: Optional[WeatherResponse]
+    times: Optional[TimesResponse]
