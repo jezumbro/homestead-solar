@@ -10,7 +10,7 @@ from pymongo.results import BulkWriteResult
 
 from settings import settings
 
-client = MongoClient(host=settings.mongo_dsn.host, port=int(settings.mongo_dsn.port))
+client = MongoClient(settings.mongo_dsn)
 
 
 def get_database() -> Database:

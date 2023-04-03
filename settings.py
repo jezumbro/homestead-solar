@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     client_id: NoneStr = None
 
-    mongo_dsn: MongoDsn = "mongodb://localhost:27017"
+    mongo_dsn: str = "mongodb://localhost:27017"
     db_name: str = "solar"
 
     sentry_dsn: Optional[HttpUrl] = None
