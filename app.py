@@ -14,10 +14,6 @@ app = FastAPI(
     title="Homestead Solar",
     root_path=settings.root_path,
     root_path_in_servers=False,
-    servers=[
-        {"url": "/solar", "description": "solar"},
-        {"url": "https://api.zumbrohomestead.com", "description": "main"},
-    ],
 )
 
 
